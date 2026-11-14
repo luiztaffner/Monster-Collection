@@ -1,0 +1,9 @@
+{
+  "name": "Monster Collection",
+  "short_name": "Monster",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#050605",
+  "theme_color": "#050605",
+  "icons": []
+}

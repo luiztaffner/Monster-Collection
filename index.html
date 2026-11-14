@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050605"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Monster Collection</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--bg:#050605;--panel:#111411;--line:#252b25;--green:#8cff00;--muted:#a4aaa2;--white:#f4f7f2;--red:#ff4545}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#10200b 0,#050605 48%);color:var(--white);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{padding:24px 18px 14px;display:flex;align-items:center;gap:12px} .claw{font-size:38px;color:var(--green);font-weight:900;text-shadow:0 0 20px #65ff0044}h1{font-size:23px;letter-spacing:2px;margin:0}h1 span{color:var(--green)}.sub{color:var(--muted);font-size:12px;margin-top:4px}
+main{padding:0 16px 90px;max-width:850px;margin:auto}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 18px}.stat{background:#0e120e;border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}.stat b{display:block;color:var(--green);font-size:22px}.stat small{color:var(--muted);font-size:11px}
+.searchrow{display:flex;gap:8px;margin-bottom:12px}input,select,textarea{background:#0d100d;color:white;border:1px solid #303830;border-radius:12px;padding:12px;font:inherit;width:100%;outline:none}input:focus,select:focus{border-color:var(--green)}button{border:0;border-radius:12px;padding:12px 15px;background:var(--green);color:#071000;font-weight:800;font-size:14px;cursor:pointer}.secondary{background:#1b2419;color:var(--green);border:1px solid #34452c}.filters{display:flex;gap:7px;overflow:auto;padding:2px 0 13px}.chip{white-space:nowrap;background:#111611;border:1px solid #293229;color:#c7d0c5;padding:8px 12px;border-radius:999px;font-size:12px}.chip.active{border-color:var(--green);color:var(--green)}
+.sectionhead{display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px}.sectionhead h2{font-size:16px;margin:0}.sectionhead small{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.can{background:linear-gradient(145deg,#141914,#090b09);border:1px solid var(--line);border-radius:16px;padding:12px;min-width:0;position:relative;cursor:pointer}.can img{width:100%;height:150px;object-fit:contain;display:block;margin-bottom:8px}.placeholder{height:150px;display:flex;align-items:center;justify-content:center;color:#53614d;font-size:48px}.can h3{font-size:14px;margin:4px 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.can p{font-size:12px;color:var(--muted);margin:0}.status{position:absolute;top:9px;right:9px;font-size:10px;background:#182314;color:var(--green);border-radius:20px;padding:5px 7px}
+.bottom{position:fixed;bottom:0;left:0;right:0;padding:9px 12px calc(9px + env(safe-area-inset-bottom));background:#080a08ee;border-top:1px solid #202620;display:flex;justify-content:space-around;backdrop-filter:blur(15px)}.bottom button{background:transparent;color:#aab2a8;padding:7px 8px;font-size:12px}.bottom button.active{color:var(--green)}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:flex-end;z-index:5}.modal.show{display:flex}.sheet{background:#101410;border:1px solid #293329;border-radius:24px 24px 0 0;padding:20px 18px calc(25px + env(safe-area-inset-bottom));width:100%;max-height:90vh;overflow:auto}.sheet h2{margin:0 0 15px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin-bottom:11px}.field label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}.full{grid-column:1/-1}.actions{display:flex;gap:9px;margin-top:15px}.actions button{flex:1}.detailhero{display:flex;gap:15px;align-items:center}.detailhero img{width:115px;height:160px;object-fit:contain}.detailhero .placeholder{width:115px;height:160px}.detailhero h2{margin:0 0 7px}.rating{color:var(--green);font-size:22px;font-weight:800}.muted{color:var(--muted);font-size:13px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.can img,.placeholder{height:190px}}
+</style></head><body>
+<header><div class="claw">爪</div><div><h1>MONSTER <span>COLLECTION</span></h1><div class="sub">SEU CATÁLOGO • SUA COLEÇÃO</div></div></header>
+<main>
+<div class="stats"><div class="stat"><b id="ownedCount">0</b><small>NA COLEÇÃO</small></div><div class="stat"><b id="wantCount">0</b><small>NA WISHLIST</small></div><div class="stat"><b id="avgRating">—</b><small>NOTA MÉDIA</small></div></div>
+<div class="searchrow"><input id="search" placeholder="Buscar sabor, país ou edição…" autocomplete="off"><button onclick="openAdd()">＋</button></div>
+<div class="filters"><button class="chip active" data-filter="all">Todas</button><button class="chip" data-filter="owned">Tenho</button><button class="chip" data-filter="want">Quero</button><button class="chip" data-filter="missing">Não tenho</button></div>
+<div class="sectionhead"><h2 id="listTitle">Catálogo de latas</h2><small id="countLabel"></small></div><div id="grid" class="grid"></div>
+</main>
+<nav class="bottom"><button class="active" onclick="nav('catalog',this)">▦<br>Catálogo</button><button onclick="nav('collection',this)">♥<br>Coleção</button><button onclick="openAdd()">＋<br>Adicionar</button><button onclick="nav('stats',this)">▥<br>Estatísticas</button></nav>
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="sheet" id="sheet"></div></div>
+<script>
+const starter=[
+["Monster Energy Original","Original","EUA","500 ml","Classic"],
+["Monster Energy Ultra White","Ultra White","EUA","500 ml","Ultra"],
+["Monster Energy Zero Sugar","Zero Sugar","EUA","500 ml","Classic"],
+["Monster Ultra Paradise","Ultra Paradise","EUA","500 ml","Ultra"],
+["Monster Ultra Violet","Ultra Violet","EUA","500 ml","Ultra"],
+["Monster Ultra Rosa","Ultra Rosa","EUA","500 ml","Ultra"],
+["Monster Mango Loco","Mango Loco","EUA","500 ml","Juice"],
+["Monster Pipeline Punch","Pipeline Punch","EUA","500 ml","Juice"],
+["Monster Pacific Punch","Pacific Punch","EUA","500 ml","Juice"],
+["Monster Khaotic","Khaotic","EUA","500 ml","Juice"],
+["Monster Assault","Assault","EUA","500 ml","Classic"],
+["Monster Rehab Tea + Lemonade","Rehab","EUA","458 ml","Rehab"],
+["Monster Energy Lewis Hamilton","Lewis Hamilton","Global","500 ml","Special"],
+["Monster Ultra Golden Pineapple","Golden Pineapple","EUA","500 ml","Ultra"],
+["Monster Ultra Blue","Ultra Blue","EUA","500 ml","Ultra"],
+["Monster Ultra Red","Ultra Red","EUA","500 ml","Ultra"],
+["Monster Ultra Black","Ultra Black","EUA","500 ml","Ultra"],
+["Monster Ultra Sunrise","Ultra Sunrise","EUA","500 ml","Ultra"],
+["Monster Ultra Fiesta Mango","Fiesta Mango","EUA","500 ml","Ultra"],
+["Monster Super Fuel","Super Fuel","EUA","568 ml","Special"],
+["Monster Energy Brasil","Original Brasil","Brasil","473 ml","Classic"],
+["Monster Ultra Brasil","Ultra Brasil","Brasil","473 ml","Ultra"],
+["Monster Mango Loco Brasil","Mango Loco Brasil","Brasil","473 ml","Juice"]
+].map((x,i)=>({id:'s'+i,name:x[0],flavor:x[1],country:x[2],size:x[3],edition:x[4],status:'missing',rating:null,date:'',photo:'',notes:'',barcode:''}));
+let cans=JSON.parse(localStorage.getItem('mc-cans')||'null')||starter;
+let filter='all',page='catalog';
+function save(){localStorage.setItem('mc-cans',JSON.stringify(cans));render()}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function render(){let owned=cans.filter(c=>c.status==='owned'),want=cans.filter(c=>c.status==='want');document.getElementById('ownedCount').textContent=owned.length;document.getElementById('wantCount').textContent=want.length;let rated=owned.filter(c=>c.rating!==null&&c.rating!=='');document.getElementById('avgRating').textContent=rated.length?(rated.reduce((a,c)=>a+Number(c.rating),0)/rated.length).toFixed(1):'—';
+let q=document.getElementById('search').value.toLowerCase();let arr=cans.filter(c=>(c.name+' '+c.flavor+' '+c.country+' '+c.edition).toLowerCase().includes(q));if(page==='collection')arr=arr.filter(c=>c.status==='owned');if(filter==='owned')arr=arr.filter(c=>c.status==='owned');if(filter==='want')arr=arr.filter(c=>c.status==='want');if(filter==='missing')arr=arr.filter(c=>c.status==='missing');document.getElementById('listTitle').textContent=page==='collection'?'Minha coleção':page==='stats'?'Resumo da coleção':'Catálogo de latas';document.getElementById('countLabel').textContent=arr.length+' latas';
+if(page==='stats'){document.getElementById('grid').innerHTML=`<div class="can"><h3>${cans.length}</h3><p>Itens no catálogo</p></div><div class="can"><h3>${owned.length}</h3><p>Latas adquiridas</p></div><div class="can"><h3>${want.length}</h3><p>Na wishlist</p></div>`;return}
+document.getElementById('grid').innerHTML=arr.map(c=>`<article class="can" onclick="detail('${c.id}')"><span class="status">${c.status==='owned'?'✓ TENHO':c.status==='want'?'★ QUERO':'＋'}</span>${c.photo?`<img src="${c.photo}">`:`<div class="placeholder">🥫</div>`}<h3>${esc(c.name)}</h3><p>${esc(c.country)} · ${esc(c.size)}</p>${c.rating!==null&&c.rating!==''?`<p style="color:var(--green);margin-top:6px">★ ${c.rating}/10</p>`:''}</article>`).join('')||'<p class="muted">Nenhuma lata encontrada.</p>'}
+document.getElementById('search').addEventListener('input',render);
+document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;render()});
+function nav(p,b){page=p;filter='all';document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('active'));b.classList.add('active');render()}
+function show(html){document.getElementById('sheet').innerHTML=html;document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function detail(id){let c=cans.find(x=>x.id===id);show(`<div class="detailhero">${c.photo?`<img src="${c.photo}">`:'<div class="placeholder">🥫</div>'}<div><h2>${esc(c.name)}</h2><div class="rating">${c.rating!==null&&c.rating!==''?'★ '+c.rating+'/10':'Sem nota'}</div><p class="muted">${esc(c.flavor)} · ${esc(c.country)} · ${esc(c.size)}</p><p class="muted">${c.date?'Adquirida em '+c.date:'Ainda não adquirida'}</p></div><p>${esc(c.notes)}</p><div class="actions"><button onclick="editCan('${id}')">Editar</button><button class="secondary" onclick="closeModal()">Fechar</button></div>`)}
+function openAdd(){editCan(null)}
+function editCan(id){let c=id?cans.find(x=>x.id===id):{id:'c'+Date.now(),name:'',flavor:'',country:'',size:'',edition:'',status:'missing',rating:'',date:'',photo:'',notes:'',barcode:''};show(`<h2>${id?'Editar lata':'Cadastrar lata'}</h2><form id="canForm"><div class="formgrid"><div class="field full"><label>Nome da lata *</label><input name="name" required value="${esc(c.name)}" placeholder="Ex.: Monster Ultra White"></div><div class="field"><label>Sabor</label><input name="flavor" value="${esc(c.flavor)}"></div><div class="field"><label>País</label><input name="country" value="${esc(c.country)}" placeholder="Brasil"></div><div class="field"><label>Tamanho</label><input name="size" value="${esc(c.size)}" placeholder="473 ml"></div><div class="field"><label>Edição / linha</label><input name="edition" value="${esc(c.edition)}"></div><div class="field"><label>Status</label><select name="status"><option value="missing" ${c.status==='missing'?'selected':''}>Não tenho</option><option value="want" ${c.status==='want'?'selected':''}>Quero</option><option value="owned" ${c.status==='owned'?'selected':''}>Tenho</option></select></div><div class="field"><label>Nota (0 a 10)</label><input name="rating" type="number" min="0" max="10" step="0.1" value="${c.rating??''}"></div><div class="field"><label>Data de aquisição</label><input name="date" type="date" value="${c.date||''}"></div><div class="field"><label>Código de barras</label><input name="barcode" value="${esc(c.barcode)}"></div><div class="field full"><label>Foto da lata</label><input name="photo" type="file" accept="image/*" id="photoInput"></div><div class="field full"><label>Observações</label><textarea name="notes" rows="2">${esc(c.notes)}</textarea></div></div><div class="actions"><button type="submit">Salvar lata</button><button type="button" class="secondary" onclick="closeModal()">Cancelar</button></div>${id?`<button type="button" style="background:#351313;color:#ff7777;width:100%;margin-top:10px" onclick="deleteCan('${id}')">Excluir do catálogo</button>`:''}</form>`);
+document.getElementById('canForm').onsubmit=async e=>{e.preventDefault();let f=e.target,photo=c.photo;let file=f.photo.files[0];if(file)photo=await compress(file);let obj={...c,name:f.name.value.trim(),flavor:f.flavor.value,country:f.country.value,size:f.size.value,edition:f.edition.value,status:f.status.value,rating:f.rating.value===''?null:Number(f.rating.value),date:f.date.value,barcode:f.barcode.value,notes:f.notes.value,photo};if(obj.status==='owned'&&!obj.date)obj.date=new Date().toISOString().slice(0,10);if(id)cans=cans.map(x=>x.id===id?obj:x);else cans.unshift(obj);closeModal();save()};
+}
+function deleteCan(id){if(confirm('Excluir esta lata do catálogo?')){cans=cans.filter(c=>c.id!==id);closeModal();save()}}
+function compress(file){return new Promise(res=>{let r=new FileReader();r.onload=()=>{let im=new Image();im.onload=()=>{let cv=document.createElement('canvas'),w=600,h=im.height/im.width*w;cv.width=w;cv.height=h;cv.getContext('2d').drawImage(im,0,0,w,h);res(cv.toDataURL('image/jpeg',.75))};im.src=r.result};r.readAsDataURL(file)})}
+render();
+</script></body></html>
